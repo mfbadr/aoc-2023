@@ -2,11 +2,7 @@
 
 
 // find the first and last digit from each line, make a 2 digit number, sum them
-
-
-
-//This solution is failing on edge cases such as "oneight" because of regex weirdness. Oh well.
-
+// this time the number can be written out from one to nine
 
 const realInput = require('./input').split(/\n/);
 const testInput = [
@@ -19,8 +15,19 @@ const testInput = [
   '7pqrstsixteen'
 ];
 
+  const wordToNumberMap = {
+    'one': 1,
+    'two': 2,
+    'three': 3,
+    'four': 4,
+    'five': 5,
+    'six': 6,
+    'seven': 7,
+    'eight': 8,
+    'nine': 9
+  };
+
 const wordNumberRegex = /one|two|three|four|five|six|seven|eight|nine/g; 
-// console.log(input);
 
 function replaceNumbersWithWords(stringWithNumbers) {
  return     stringWithNumbers.replace(/\d/g, (match) => {
@@ -49,88 +56,38 @@ function replaceNumbersWithWords(stringWithNumbers) {
     });  
 }
 
-function convertToArrayOfNumbers(input) {
-  const out = [];
-  const inputInWords = replaceNumbersWithWords(input);
-  const arrayOfWords = inputInWords.match(wordNumberRegex);
-
-
-  arrayOfWords.forEach((word) => {
-    switch(word) {
-        case 'one':
-          out.push(1);
-        case 'two':
-          out.push(2);
-        case 'three':
-          out.push(3);
-        case 'four':
-          out.push(4);
-        case 'five':
-          out.push(5);
-        case 'six':
-          out.push(6);
-        case 'seven':
-          out.push(7);
-        case 'eight':
-          out.push(8);
-        case 'nine':
-          out.push(9);
-      } 
-  })
-  return out
-
+function getFirstNumber(lineInWords) {
+  const firstNumberWord = lineInWords.match(wordNumberRegex)[0];
+  return wordToNumberMap[firstNumberWord];
 }
 
+function getLastNumber(lineInWords) {
+  for(let i = lineInWords.length - 1; i >= 0; i--){
+    const chunk = lineInWords.substr(i, lineInWords.length);
+    const check = chunk.match(wordNumberRegex)
 
-
+    if(check && check.length > 0) {
+      return wordToNumberMap[check[0]]
+    }
+  }
+}
 
 function main(input){
-  let sum = 0
+  let sum = 0;
 
-  const inputInNumbers = input.map((line) => {
-    return line.replace(wordNumberRegex, (match) => {
-      switch(match) {
-        case 'one':
-          return '1';
-        case 'two':
-          return '2';
-        case 'three':
-          return '3';
-        case 'four':
-          return '4';
-        case 'five':
-          return '5';
-        case 'six':
-          return '6';
-        case 'seven':
-          return '7';
-        case 'eight':
-          return '8';
-        case 'nine':
-          return '9';
-        default:
-          return match;
-      }
-    });
-  });
+  input.forEach((line) => {
+    const convertedToWords = replaceNumbersWithWords(line);
+    const firstNumber = getFirstNumber(convertedToWords);
+    const lastNumber = getLastNumber(convertedToWords);
 
-  const numerals = inputInNumbers.map((line) => {
-    return line.match(/\d/g)
-  });
-
-  numerals.forEach((nums) => {
-    if(nums.length === 0) {
-      return;
-    }
-    const num = Number(nums[0] + nums[nums.length - 1]) || 0;
-    sum += num;
-  });
+    sum += (firstNumber * 10);
+    sum += lastNumber;
+  })
 
   return sum;
 
 }
 
-
 console.log(main(testInput) === 281 ? 'Test passes! ✅' : 'Test Failed ❌')
-// console.log(main(testInput) === 281 ? 'Test passes! ✅' : 'Test Failed ❌')
 console.log(`Output of real data: ${main(realInput)}`)
+
